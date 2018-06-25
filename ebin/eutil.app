@@ -1,0 +1,10 @@
+{application,eutil,
+             [{description,"My Erlang Util lib"},
+              {vsn,"1.0.0"},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {env,[]},
+              {modules,[eutil]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.
