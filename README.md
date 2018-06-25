@@ -1,9 +1,15 @@
 eutil
 =====
 
-An OTP library
+My Erlang Util Module.
 
-Build
------
+#0. 环境：
 
-    $ rebar3 compile
+    otp17.5+
+    GNU Make
+    rebar
+
+#1. Build
+
+    $ make all
+    > eutil:get_timestamp().
