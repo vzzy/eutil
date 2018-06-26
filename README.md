@@ -1,6 +1,6 @@
 eutil
 =====
-test
+
 My Erlang Util Module.
 
 #0. 环境：
