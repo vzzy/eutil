@@ -7,7 +7,7 @@ My Erlang Util Module.
 
     otp17.5+
     GNU Make
-    rebar
+    rebar3
 
 #1. Build
 
