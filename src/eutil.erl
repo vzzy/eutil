@@ -2,6 +2,12 @@
 
 %% API exports
 -export([
+	
+	start_app/1,	 
+	
+	list_to_atom/1,	 	
+	
+	get_now/0, 
 	get_seconds/0,
 	get_timestamp/0,
 	get_micros/0,
@@ -18,6 +24,35 @@
 %%====================================================================
 %% Internal functions
 %%====================================================================
+
+%% 启动App
+%% @param App term()
+start_app(App) ->
+    start_app_sub(App, application:start(App, permanent)).
+start_app_sub(_App, ok) -> ok;
+start_app_sub(_App, {error, {already_started, _App}}) -> ok;
+start_app_sub(App, {error, {not_started, Dep}}) ->
+    ok = start_app(Dep),
+    start_app(App);
+start_app_sub(App, {error, Reason}) ->
+    erlang:error({app_start_failed, App, Reason}).
+
+
+%% 改写erlang:list_to_atom()，更高效一些。
+%% @param List list
+%% @return atom
+list_to_atom(List)->
+	try
+		erlang:list_to_existing_atom(List)
+    catch
+        _:_->
+        	erlang:list_to_atom(List)
+    end.
+
+%% 获取当前时间 yyyy-mm-dd hh:mm:ss
+get_now()->
+	{{Year, Month, Day}, {Hour, Minute, Second}} = calendar:local_time(),
+    list_to_binary(lists:flatten(io_lib:format("~4..0w-~2..0w-~2..0w ~2..0w:~2..0w:~2..0w",[Year, Month, Day, Hour, Minute, Second]))).
 
 %%获取从公元1970年到当前时间的秒数
 get_seconds()->
