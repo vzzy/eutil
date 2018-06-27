@@ -21,7 +21,7 @@
 %% @param List  list
 %% @return atom
 get_proc(List)->
-	eutil:list_to_atom(lists:concat(List)).
+	eutil:list_to_atom(lists:concat(lists:join("@",List))).
 
 %% 启动App
 %% @param App term()
