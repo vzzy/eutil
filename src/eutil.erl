@@ -2,7 +2,8 @@
 
 %% API exports
 -export([
-	
+	get_proc/1,
+
 	start_app/1,	 
 	
 	list_to_atom/1,	 	
@@ -16,14 +17,11 @@
 	gc/0		 
 ]).
 
-%%====================================================================
-%% API functions
-%%====================================================================
-
-
-%%====================================================================
-%% Internal functions
-%%====================================================================
+%% 进程名获取方法
+%% @param List  list
+%% @return atom
+get_proc(List)->
+	eutil:list_to_atom(lists:concat(List)).
 
 %% 启动App
 %% @param App term()
@@ -42,12 +40,12 @@ start_app_sub(App, {error, Reason}) ->
 %% @param List list
 %% @return atom
 list_to_atom(List)->
-	try
-		erlang:list_to_existing_atom(List)
-    catch
-        _:_->
-        	erlang:list_to_atom(List)
-    end.
+	case catch erlang:list_to_existing_atom(List) of
+		{'EXIT',_}->
+			erlang:list_to_atom(List);
+		Atom->
+			Atom
+	end.
 
 %% 获取当前时间 yyyy-mm-dd hh:mm:ss
 get_now()->
