@@ -14,7 +14,8 @@
 	get_micros/0,
 	seconds_to_local_time/1,
 	
-	gc/0		 
+	gc/0,
+	src/1
 ]).
 
 %% 进程名获取方法
@@ -79,5 +80,12 @@ seconds_to_local_time(Seconds)->
 % 对所有process做gc
 gc() ->
     [erlang:garbage_collect(Pid) || Pid <- processes()].
+
+%% 反编译源码
+src(Mod) when is_atom(Mod)->
+	{ok,{_,[{abstract_code,{_,AC}}]}} = beam_lib:chunks(code:which(Mod),[abstract_code]),
+	io:fwrite("~s~n", [erl_prettypr:format(erl_syntax:form_list(AC))]).
+
+
 
 
