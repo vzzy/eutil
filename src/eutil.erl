@@ -6,6 +6,7 @@
 
 	start_app/1,	 
 	
+	random/1,
 	list_to_atom/1,	 	
 	
 	get_now/0, 
@@ -36,6 +37,13 @@ start_app_sub(App, {error, {not_started, Dep}}) ->
 start_app_sub(App, {error, Reason}) ->
     erlang:error({app_start_failed, App, Reason}).
 
+%%返回1~N之间的随机数
+%% @param N >=1的一个整数
+%% @return int
+random(N)when is_integer(N) andalso N>=1->
+	<<A:32,B:32,C:32>> = crypto:strong_rand_bytes(12),
+	rand:seed(exs1024s,{A,B,C}),
+	rand:uniform(N).
 
 %% 改写erlang:list_to_atom()，更高效一些。
 %% @param List list
