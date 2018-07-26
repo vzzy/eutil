@@ -13,3 +13,5 @@ My Erlang Util Module.
 
     $ make all
     > eutil:get_timestamp().
+    
+    > eutil:info().

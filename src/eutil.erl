@@ -16,7 +16,8 @@
 	seconds_to_local_time/1,
 	
 	gc/0,
-	src/1
+	src/1,
+	info/0
 ]).
 
 %% 进程名获取方法
@@ -94,6 +95,50 @@ src(Mod) when is_atom(Mod)->
 	{ok,{_,[{abstract_code,{_,AC}}]}} = beam_lib:chunks(code:which(Mod),[abstract_code]),
 	io:fwrite("~s~n", [erl_prettypr:format(erl_syntax:form_list(AC))]).
 
+%% 系统监控信息
+info()->
+	List = erlang:memory(),
+	Dict = lists:foldl(fun({K,V},Temp_Dict)->
+		dict:store(K,V/1024/1024,Temp_Dict)
+	end,dict:new(),List),
+
+	Mem_total = dict:fetch(total,Dict),
+	Mem_processes = dict:fetch(processes,Dict),
+	Mem_processes_used = dict:fetch(processes_used,Dict),
+	
+	Mem_system = dict:fetch(system,Dict),
+	
+	Mem_atom = dict:fetch(atom,Dict),
+	Mem_atom_used = dict:fetch(atom_used,Dict),
+
+	Mem_binary = dict:fetch(binary,Dict),
+	Mem_code = dict:fetch(code,Dict),
+	Mem_ets = dict:fetch(ets,Dict),
+	
+	Process_limit = erlang:system_info(process_limit),
+	Process_count = erlang:system_info(process_count),
+	
+	Atom_limit = erlang:system_info(atom_limit),
+	Atom_count = erlang:system_info(atom_count),
+	 
+	Port_limit = erlang:system_info(port_limit),
+	Port_count = erlang:system_info(port_count),
+
+	io:format("=============Mem: ~.3..f MB===========~n",[Mem_total]),
+	io:format("Process: ~.3..f - ~.3..f MB~n",[Mem_processes_used,Mem_processes]),
+	io:format("Atom   : ~.3..f - ~.3..f MB~n",[Mem_atom_used,Mem_atom]),
+	io:format("System : ~.3..f MB~n",[Mem_system]),
+	io:format("Binary : ~.3..f MB~n",[Mem_binary]),
+	io:format("Code   : ~.3..f MB~n",[Mem_code]),
+	io:format("Ets    : ~.3..f MB~n",[Mem_ets]),
+	io:format("~n",[]),
+
+	io:format("=============Count============~n",[]),
+	io:format("Process: ~p - ~p~n",[Process_count,Process_limit]),
+	io:format("Atom   : ~p - ~p~n",[Atom_count,Atom_limit]),
+	io:format("Prot   : ~p - ~p~n",[Port_count,Port_limit]),
+
+	ok.
 
 
 
