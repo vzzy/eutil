@@ -124,8 +124,12 @@ gc() ->
 
 %% 反编译源码
 src(Mod) when is_atom(Mod)->
-	{ok,{_,[{abstract_code,{_,AC}}]}} = beam_lib:chunks(code:which(Mod),[abstract_code]),
-	io:fwrite("~s~n", [erl_prettypr:format(erl_syntax:form_list(AC))]).
+	case beam_lib:chunks(code:which(Mod),[abstract_code]) of
+		{ok,{_,[{abstract_code,{_,AC}}]}} -> 
+			io:fwrite("~s~n", [erl_prettypr:format(erl_syntax:form_list(AC))]);
+		Others->
+			Others
+	end.
 
 %% 系统监控信息
 info()->
