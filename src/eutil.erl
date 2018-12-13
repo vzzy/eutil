@@ -2,6 +2,12 @@
 
 %% API exports
 -export([
+	term_to_binary/1,
+	term_to_bitstring/1,
+	bitstring_to_term/1,
+	term_to_string/1,
+	string_to_term/1,		 
+		 
 	get_proc/1,
 
 	start_app/1,	 
@@ -19,6 +25,32 @@
 	src/1,
 	info/0
 ]).
+
+%% term 转换成二进制
+term_to_binary(Term) when is_binary(Term)->
+	Term;
+term_to_binary(Term)->
+	list_to_binary(io_lib:format("~p", [Term])).
+%% term转换为bitstring格式   [{a},1] => <<"[{a},1]">>
+term_to_bitstring(Term) ->
+    erlang:list_to_bitstring(io_lib:format("~w", [Term])).
+%% 二进制字符串转term  <<"[{a},1]">> => [{a},1] 
+bitstring_to_term(BitString) ->
+    string_to_term(binary_to_list(BitString)).
+%% term转换为string格式  [{a},1] => "[{a},1]"
+term_to_string(Term) ->
+    binary_to_list(list_to_binary(io_lib:format("~w", [Term]))).
+%%string转换为term "[{a},1]"  => [{a},1]
+string_to_term(String) ->
+    case erl_scan:string(String++".") of
+        {ok, Tokens, _} ->
+            case erl_parse:parse_term(Tokens) of
+                {ok, Term} -> Term;
+                _Err -> error
+            end;
+        _Error ->
+            error
+    end.
 
 %% 进程名获取方法
 %% @param List  list
