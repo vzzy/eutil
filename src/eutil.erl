@@ -2,6 +2,8 @@
 
 %% API exports
 -export([
+	partition/2,
+	
 	term_to_binary/1,
 	term_to_bitstring/1,
 	bitstring_to_term/1,
@@ -25,6 +27,14 @@
 	src/1,
 	info/0
 ]).
+
+%% 取模方法
+partition(_Key,Num_buckets) when Num_buckets=<0->
+	0;
+partition(Key,Num_buckets)->
+	<<A:8,B:8,C:8,_Bin/binary>> = erlang:md5(Key),
+	Num = erlang:abs(A bsl 16 + B bsl 8 + C), 
+	Num rem Num_buckets.
 
 %% term 转换成二进制
 term_to_binary(Term) when is_binary(Term)->
