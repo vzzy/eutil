@@ -133,7 +133,7 @@ seconds_to_local_time(Seconds)->
 uuid() ->
     Term = erlang:term_to_binary({node(), make_ref()}),
     Digest = erlang:md5(Term),
-    binary_to_hex(Digest).
+    list_to_binary(binary_to_hex(Digest)).
 binary_to_hex(Bin) when is_binary(Bin) ->
     [oct_to_hex(N) || <<N:4>> <= Bin].
 oct_to_hex(0) -> $0;
