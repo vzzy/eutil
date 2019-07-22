@@ -133,7 +133,11 @@ seconds_to_local_time(Seconds)->
 uuid() ->
     Term = erlang:term_to_binary({node(), make_ref()}),
     Digest = erlang:md5(Term),
-    list_to_binary(binary_to_hex(Digest)).
+	[H1,H2,H3,H4,H5,H6,H7,H8,H9,H10,
+	 H11,H12,H13,H14,H15,H16,H17,H18,H19,H20 | T] = binary_to_hex(Digest),
+	List = [H1,H2,H3,H4,H5,H6,H7,H8,"-",H9,H10,
+	 H11,H12,"-",H13,H14,H15,H16,"-",H17,H18,H19,H20,"-",T],
+    list_to_binary(List).
 binary_to_hex(Bin) when is_binary(Bin) ->
     [oct_to_hex(N) || <<N:4>> <= Bin].
 oct_to_hex(0) -> $0;
