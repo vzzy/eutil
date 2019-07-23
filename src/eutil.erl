@@ -23,6 +23,7 @@
 	get_micros/0,
 	seconds_to_local_time/1,
 	uuid/0,
+	jump_consistent_hash/2,
 	
 	gc/0,
 	src/1,
@@ -157,6 +158,26 @@ oct_to_hex(13) -> $d;
 oct_to_hex(14) -> $e;
 oct_to_hex(15) -> $f.
 
+
+%% Jump-consistent hashing.
+%% OTP 19.3 does not support exs1024s
+-define(SEED_ALGORITHM, exs1024).
+jump_consistent_hash(_Key, 1) ->
+    0;
+jump_consistent_hash(KeyList, NumberOfBuckets) when is_list(KeyList) ->
+    jump_consistent_hash(hd(KeyList), NumberOfBuckets);
+jump_consistent_hash(Key, NumberOfBuckets) when is_integer(Key) ->
+    SeedState = rand:seed_s(?SEED_ALGORITHM, {Key, Key, Key}),
+    jump_consistent_hash_value(-1, 0, NumberOfBuckets, SeedState);
+jump_consistent_hash(Key, NumberOfBuckets) ->
+    jump_consistent_hash(erlang:phash2(Key), NumberOfBuckets).
+jump_consistent_hash_value(B, J, NumberOfBuckets, _SeedState) when J >= NumberOfBuckets ->
+    B;
+jump_consistent_hash_value(_B0, J0, NumberOfBuckets, SeedState0) ->
+    B = J0,
+    {R, SeedState} = rand:uniform_s(SeedState0),
+    J = trunc((B + 1) / R),
+    jump_consistent_hash_value(B, J, NumberOfBuckets, SeedState).
 
 % 对所有process做gc
 gc() ->
