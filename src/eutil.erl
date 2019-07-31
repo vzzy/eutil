@@ -11,11 +11,12 @@
 	string_to_term/1,		 
 		 
 	get_proc/1,
-
 	start_app/1,	 
 	
 	random/1,
-	list_to_atom/1,	 	
+	list_to_atom/1,	
+	
+	get_pos/2, 	
 	
 	get_now/0, 
 	get_seconds/0,
@@ -29,6 +30,16 @@
 	src/1,
 	info/0
 ]).
+
+%% 找出列表元素所在下标
+get_pos(E,List)->
+	get_pos(E,List,0).
+get_pos(_E,[],_Pos)-> -1;	
+get_pos(E,[E|_T],Pos)->
+	Pos;
+get_pos(E,[_H|T],Pos)->
+	get_pos(E,T,Pos+1).					
+
 
 %% 取模方法
 partition(_Key,Num_buckets) when Num_buckets=<0->
