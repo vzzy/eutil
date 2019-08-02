@@ -2,6 +2,8 @@
 
 %% API exports
 -export([
+	check_process_alive/1,		 
+		 
 	partition/2,
 	
 	term_to_binary/1,
@@ -30,6 +32,25 @@
 	src/1,
 	info/0
 ]).
+
+%% 判断进程是否存活
+check_process_alive(Pid) when is_pid(Pid)->
+	Node = node(),
+	case catch node(Pid) of
+		{'EXIT',_R}->
+			false;
+		Node ->
+			erlang:is_process_alive(Pid);
+		Node_Pid->
+			case catch rpc:call(Node_Pid, erlang, is_process_alive, [Pid],3*1000) of
+				Flag when is_boolean(Flag)->
+					Flag;
+				_->
+					false
+			end
+	end;
+check_process_alive(_Pid)->
+	false.
 
 %% 找出列表元素所在下标
 get_pos(E,List)->
