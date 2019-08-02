@@ -2,6 +2,7 @@
 
 %% API exports
 -export([
+	getMap/2,	 
 	check_process_alive/1,		 
 		 
 	partition/2,
@@ -32,6 +33,17 @@
 	src/1,
 	info/0
 ]).
+
+%% Map取值
+getMap(Key,Map) when is_map(Map)->
+	case catch maps:get(Key,Map) of
+		{Reason,_}->
+			{error,Reason};
+		V->
+			{ok,V}
+	end;
+getMap(_Key,_Map)->
+	{error,<<"not map">>}.	
 
 %% 判断进程是否存活
 check_process_alive(Pid) when is_pid(Pid)->
