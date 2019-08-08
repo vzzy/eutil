@@ -32,6 +32,10 @@
 	uuid/0,
 	jump_consistent_hash/2,
 	
+	load/1,
+	network_load/1,
+	network_load/2,
+	
 	gc/0,
 	src/1,
 	info/0
@@ -245,6 +249,46 @@ jump_consistent_hash_value(_B0, J0, NumberOfBuckets, SeedState0) ->
     {R, SeedState} = rand:uniform_s(SeedState0),
     J = trunc((B + 1) / R),
     jump_consistent_hash_value(B, J, NumberOfBuckets, SeedState).
+
+
+%%当前节点热部署：
+%%@param ModList 模块列表(原子列表)
+%%@return {ok,List} | {error,Moudle,Reason,Fail_List,Succ_List}
+load(Mod_list)->
+	load(Mod_list,[]).
+load([],List)->{ok,List};
+load([H|T],List)->
+	case load_sub(H) of
+		{ok,Module}->
+			load(T,List++[Module]);
+		{error,Module,Reason}->
+			{error,Module,Reason,T,List}
+	end.
+%%当前节点指定模块热更
+load_sub(Module)->
+	code:purge(Module),
+	case code:load_file(Module) of
+		{error,Reason}->
+			{error,Module,Reason};
+		{module,_Module}->
+			{ok,Module}
+	end.
+%%节点集热更：
+%%@param ModList 模块列表(原子列表)		 
+network_load(ModList)->
+	NodeList = nodes()++[node()],
+	network_load(NodeList, ModList).
+%%指定单节点列表热更：
+%%@param NodeList 节点集合(原子列表)
+%%@param ModList 模块列表(原子列表)
+network_load(NodeList, ModList)->
+	lists:foldl(fun(Node,List)-> 
+		Result = network_load_sub(Node,ModList),
+		List ++ [{Node,Result}]
+	end, [], NodeList).
+%%指点节点指点模块热更
+network_load_sub(Node,Module_list)->
+	rpc:call(Node, eutil, load, [Module_list]).
 
 % 对所有process做gc
 gc() ->
