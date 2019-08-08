@@ -3,7 +3,9 @@
 %% API exports
 -export([
 	getMap/2,	
-	getMap/3, 
+	getMap/3,
+	recode_to_map/2,
+	map_to_recode/3,
 	check_process_alive/1,		 
 		 
 	partition/2,
@@ -34,6 +36,19 @@
 	src/1,
 	info/0
 ]).
+
+%%  Map <---> Record
+%%  由于 record_info/2 是编译时预处理执行，所以本方法只能抽象成这样
+%%  eutil:recode_to_map(record_info(fields, state),State).
+%%  eutil:map_to_recode(state,record_info(fields, state),Map)
+recode_to_map(Fields,Recode)->
+	[_ | Values] = tuple_to_list(Recode),
+	maps:from_list(lists:zip(Fields,Values)).
+map_to_recode(AtomName,Fields,Map)->
+	Values = lists:foldl(fun(F,Temp_List)-> 
+		Temp_List ++ [maps:get(F,Map,undefined)]					
+	end,[],Fields),
+	list_to_tuple([AtomName | Values]).
 
 %% Map取值
 getMap(Key,Map) when is_map(Map)->
