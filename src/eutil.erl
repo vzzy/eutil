@@ -81,11 +81,16 @@ check_process_alive(Pid) when is_pid(Pid)->
 		Node ->
 			erlang:is_process_alive(Pid);
 		Node_Pid->
-			case catch rpc:call(Node_Pid, erlang, is_process_alive, [Pid],3*1000) of
-				Flag when is_boolean(Flag)->
-					Flag;
-				_->
-					false
+			case lists:member(Node_Pid,nodes()) of
+				false->
+					false;
+				true->
+					case catch rpc:call(Node_Pid, erlang, is_process_alive, [Pid],3*1000) of
+						Flag when is_boolean(Flag)->
+							Flag;
+						_->
+							false
+					end
 			end
 	end;
 check_process_alive(_Pid)->
